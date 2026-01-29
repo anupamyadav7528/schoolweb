@@ -11,4 +11,7 @@ const NoticeSchema = new mongoose.Schema({
     },
 });
 
-export const Notice = mongoose.models.Notice || mongoose.model("Notice", NoticeSchema);
+// Agar model pehle se bana hai to wahi use karo, nahi to naya banao
+const Notice = mongoose.models.Notice || mongoose.model("Notice", NoticeSchema);
+
+export default Notice;

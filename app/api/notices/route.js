@@ -1,28 +1,42 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
-// Ye ek temporary list hai jo aapke laptop ki memory mein rahegi
-let notices = [{
-    _id: "1",
-    title: "Welcome to the new School Portal!",
-    date: new Date().toISOString()
-}];
-
-export async function GET() {
-    // Website ko list bhejo
-    return NextResponse.json(notices);
+// --- TEMPORARY DATABASE (RAM) ---
+// Ye data tab tak rahega jab tak laptop on hai aur server chal raha hai.
+if (!global.notices) {
+  global.notices = [
+    { _id: '1', title: 'Welcome to Sunshine School! (Demo Notice)', date: new Date() },
+  ];
 }
 
-export async function POST(req) {
-    const body = await req.json();
+export async function GET() {
+  return NextResponse.json(global.notices);
+}
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
 
     const newNotice = {
-        _id: Date.now().toString(), // Ek unique ID banayi
-        title: body.title,
-        date: new Date().toISOString()
+      _id: Date.now().toString(), // Unique ID
+      title: body.title,
+      date: new Date(),
     };
 
-    // Naye notice ko sabse upar add karo
-    notices.unshift(newNotice);
+    // List ke sabse upar add karein
+    global.notices.unshift(newNotice);
 
-    return NextResponse.json(newNotice, { status: 201 });
+    return NextResponse.json({ message: 'Added successfully' }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Error adding notice' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  // Filter karke delete karein
+  global.notices = global.notices.filter((n) => n._id !== id);
+
+  return NextResponse.json({ message: 'Deleted' });
 }
